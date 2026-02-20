@@ -16,8 +16,6 @@ namespace MemoryPipe
         private readonly MemoryPipeBuffer<T> _sendChannel;
         private readonly MemoryPipeBuffer<T> _receiveChannel;
 
-        public event Action<T>? Received;
-
         private const int MetadataSize = 128; // Espacio reservado para el Header
         private const int Capacity = 1024;    // Slots por canal (debe ser potencia de 2)
         private static readonly int ChannelSize = 128 + (Capacity * Unsafe.SizeOf<T>());
@@ -100,20 +98,7 @@ namespace MemoryPipe
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Read()
-        {
-            var result = _receiveChannel.Read();
-
-            // Fire and forget
-            if (Received is not null)
-            {
-                var copy = result;
-                _ = Task.Run(() => Received(copy));
-            }
-
-
-            return result;
-        }
+        public T Read() => _receiveChannel.Read();
 
         public void Dispose()
         {
