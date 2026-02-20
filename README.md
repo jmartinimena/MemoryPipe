@@ -38,3 +38,62 @@ The following table compares the **Full Round-Trip Latency** (Host → Client �
 
 ```bash
 dotnet add package AeroTransport.MemoryPipe
+```
+
+## 📖 Quick Start Examples
+
+To use `MemoryPipe<T>`, the data contract must be an `unmanaged struct`.
+
+```csharp
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public struct GameMessage
+{
+    public int CommandId;
+    public double Timestamp;
+}
+```
+
+### Server Implementation (Host)
+The server is responsible for creating and owning the shared memory resource.
+
+```csharp
+using MemoryPipe;
+
+// 1. Initialize the Server with a global unique name
+using var server = new MemoryPipe<MessageFrame>("MyPipe", isHost: true);
+
+Console.WriteLine("[Server] Listening for messages...");
+
+while (true)
+{
+    // 2. Read (Uses optimized SpinWait for minimal latency)
+    var request = server.Read();
+    Console.WriteLine($"[Server] Received Command: {request.CommandId}");
+
+    // 3. Write response back to client
+    server.Write(new MessageFrame { 
+        CommandId = request.CommandId + 1000, 
+        Timestamp = DateTime.UnixEpoch.Ticks 
+    });
+}
+```
+
+### Client Implementation
+The client attaches to the existing memory map. It requires the Host to be already running.
+
+```csharp
+using AeroTransport.MemoryPipe;
+
+// 1. Connect to the channel created by the Host
+using var client = new MemoryPipe<MessageFrame>("MyPipe", isHost: false);
+
+// 2. Send data to the server
+Console.WriteLine("[Client] Sending command...");
+client.Write(new MessageFrame { CommandId = 1, Timestamp = 0 });
+
+// 3. Wait for the Round-Trip response
+var response = client.Read();
+Console.WriteLine($"[Client] Server responded with: {response.CommandId}");
+```
