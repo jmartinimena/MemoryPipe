@@ -84,7 +84,7 @@ while (true)
 The client attaches to the existing memory map. It requires the Host to be already running.
 
 ```csharp
-using AeroTransport.MemoryPipe;
+using MemoryPipe;
 
 // 1. Connect to the channel created by the Host
 using var client = new MemoryPipe<MessageFrame>("MyPipe", isHost: false);
