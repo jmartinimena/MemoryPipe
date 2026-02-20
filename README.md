@@ -34,6 +34,27 @@ The following table compares the **Full Round-Trip Latency** (Host → Client �
 - **Bi-directional:** Dual-channel communication (Inbox/Outbox) over a single mapped region.
 - **Type Safety:** Compile-time validation for `unmanaged` constraints to ensure memory integrity.
 
+## 🧠 Technical Deep Dive: Why is it so fast?
+
+MemoryPipe achieves sub-microsecond latency by eliminating the three primary bottlenecks found in standard .NET IPC implementations.
+
+### 1. Zero Context-Switching (User-Mode Only)
+Standard IPC (Named Pipes, Sockets) requires a transition from **User Mode** to **Kernel Mode** for every read/write operation. This "Context Switch" forces the CPU to save register states and flush certain cache lines, costing thousands of clock cycles.
+* **MemoryPipe approach:** Communication happens entirely in User Mode via Shared Memory. The CPU never hands control to the OS kernel during the hot-path, keeping the execution flow within the L1/L2 cache boundaries.
+
+### 2. Zero-Copy Architecture
+Traditional stacks involve multiple memory copies: `App Buffer -> Serializer -> Socket Buffer -> Kernel Buffer -> NIC/Loopback`.
+* **MemoryPipe approach:** It maps the same physical RAM page into the virtual address space of both processes. When you call `Write(in T message)`, you are modifying the exact same bits that the other process is observing. There is no intermediate buffer, no serialization, and no heap allocation.
+
+### 3. Lock-Free Atomic Synchronization
+Locks and Mutexes are heavy. Acquiring a `lock` or a `Semaphore` often involves kernel-level arbitration, which is slow.
+* **MemoryPipe approach:** We utilize **Memory Barriers** and **Atomic Volatiles**. The `Head` and `Tail` pointers of the Ring Buffer are updated using atomic CPU instructions. This allows one process to write while the other reads without ever stopping to wait for a software lock, provided the buffer is not full/empty.
+
+### 4. .NET 10 Hardware Intrinsics & PGO
+By targeting **.NET 10**, MemoryPipe benefits from:
+- **Dynamic PGO:** The JIT compiler observes that the `Read/Write` methods are called frequently and inlines them directly into your application's loop.
+- **Enhanced Struct Spilling:** Improved handling of `in` parameters to ensure structs are passed via CPU registers rather than the stack whenever possible.
+
 ## 📖 Quick Start Examples
 
 To use `MemoryPipe<T>`, the data contract must be an `unmanaged struct`.
