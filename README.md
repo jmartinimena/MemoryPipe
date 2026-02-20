@@ -42,9 +42,9 @@ To use `MemoryPipe<T>`, the data contract must be an `unmanaged struct`.
 using System.Runtime.InteropServices;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct GameMessage
+public struct MessageFrame
 {
-    public int CommandId;
+    public int Id;
     public double Timestamp;
 }
 ```
