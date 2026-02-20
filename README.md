@@ -64,13 +64,10 @@ using MemoryPipe;
 // 1. Initialize the Server with a global unique name
 using var server = new MemoryPipe<MessageFrame>("MyPipe", isHost: true);
 
-Console.WriteLine("[Server] Listening for messages...");
-
 while (true)
 {
     // 2. Read (Uses optimized SpinWait for minimal latency)
     var request = server.Read();
-    Console.WriteLine($"[Server] Received Command: {request.CommandId}");
 
     // 3. Write response back to client
     server.Write(new MessageFrame { 
@@ -90,10 +87,8 @@ using MemoryPipe;
 using var client = new MemoryPipe<MessageFrame>("MyPipe", isHost: false);
 
 // 2. Send data to the server
-Console.WriteLine("[Client] Sending command...");
 client.Write(new MessageFrame { CommandId = 1, Timestamp = 0 });
 
 // 3. Wait for the Round-Trip response
 var response = client.Read();
-Console.WriteLine($"[Client] Server responded with: {response.CommandId}");
 ```
