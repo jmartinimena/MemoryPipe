@@ -61,19 +61,26 @@ The server is responsible for creating and owning the shared memory resource.
 ```csharp
 using MemoryPipe;
 
-// 1. Initialize the Server with a global unique name
-using var server = new MemoryPipe<MessageFrame>("MyPipe", isHost: true);
-
-while (true)
+try
 {
-    // 2. Read (Uses optimized SpinWait for minimal latency)
-    var request = server.Read();
-
-    // 3. Write response back to client
-    server.Write(new MessageFrame { 
-        CommandId = request.CommandId + 1000, 
-        Timestamp = DateTime.UnixEpoch.Ticks 
-    });
+  // 1. Initialize the Server with a global unique name
+  using var server = new MemoryPipe<MessageFrame>("MyPipe", isHost: true);
+  
+  while (true)
+  {
+      // 2. Read (Uses optimized SpinWait for minimal latency)
+      var request = server.Read();
+  
+      // 3. Write response back to client
+      server.Write(new MessageFrame { 
+          CommandId = request.CommandId + 1000, 
+          Timestamp = DateTime.UnixEpoch.Ticks 
+      });
+  }
+}
+catch (Exception)
+{
+  ...
 }
 ```
 
@@ -83,12 +90,19 @@ The client attaches to the existing memory map. It requires the Host to be alrea
 ```csharp
 using MemoryPipe;
 
-// 1. Connect to the channel created by the Host
-using var client = new MemoryPipe<MessageFrame>("MyPipe", isHost: false);
-
-// 2. Send data to the server
-client.Write(new MessageFrame { CommandId = 1, Timestamp = 0 });
-
-// 3. Wait for the Round-Trip response
-var response = client.Read();
+try
+{
+  // 1. Connect to the channel created by the Host
+  using var client = new MemoryPipe<MessageFrame>("MyPipe", isHost: false);
+  
+  // 2. Send data to the server
+  client.Write(new MessageFrame { CommandId = 1, Timestamp = 0 });
+  
+  // 3. Wait for the Round-Trip response
+  var response = client.Read();
+}
+catch (Exception)
+{
+  ...
+}
 ```
