@@ -18,7 +18,7 @@ The following table compares the **Full Round-Trip Latency** (Host → Client �
 *Tests performed on: Ryzen 5 5600X 3.7GHz, 32 GB DDR4 3600MT/s*
 | Transport Method | Round-Trip Latency | Efficiency | Architecture |
 | :--- | :--- | :--- | :--- |
-| **AeroTransport.MemoryPipe** | **~0.59 µs** | **100%** | **Zero-Copy / L1 Cache** |
+| **MemoryPipe** | **~0.59 µs** | **100%** | **Zero-Copy / L1 Cache** |
 | Named Pipes (Local) | ~30.80 µs | 1.9% | Kernel Context Switch |
 | TCP Sockets (Loopback) | ~90.00 µs | 0.6% | Full Network Stack |
 | gRPC (HTTP/2) | ~280.00 µs | 0.2% | Serialization + Overhead |
@@ -33,12 +33,6 @@ The following table compares the **Full Round-Trip Latency** (Host → Client �
 - **Zero Allocations:** No Garbage Collector (GC) pressure during transmission.
 - **Bi-directional:** Dual-channel communication (Inbox/Outbox) over a single mapped region.
 - **Type Safety:** Compile-time validation for `unmanaged` constraints to ensure memory integrity.
-
-## 📦 Installation
-
-```bash
-dotnet add package AeroTransport.MemoryPipe
-```
 
 ## 📖 Quick Start Examples
 
