@@ -1,12 +1,6 @@
-
-<div align="center">
-  
 # MemoryPipe
-  
 [![Runtime](https://img.shields.io/badge/.NET-10.0-512bd4)](https://dotnet.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-</div>
 
 `MemoryPipe<T>` is a high-performance, zero-copy Inter-Process Communication (IPC) library for .NET. Built on top of Shared Memory (Memory Mapped Files) and Lock-Free Ring Buffers, it provides a specialized transport for unmanaged structures.
 
