@@ -54,6 +54,14 @@ By targeting **.NET 10**, MemoryPipe benefits from:
 - **Dynamic PGO:** The JIT compiler observes that the `Read/Write` methods are called frequently and inlines them directly into your application's loop.
 - **Enhanced Struct Spilling:** Improved handling of `in` parameters to ensure structs are passed via CPU registers rather than the stack whenever possible.
 
+## 📦 Installation
+
+Install the package via **NuGet Package Manager Console**:
+
+```powershell
+Install-Package MemoryPipe
+```
+
 ## 📖 Quick Start Examples
 
 To use `MemoryPipe<T>`, the data contract must be an `unmanaged struct`.
